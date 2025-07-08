@@ -1,0 +1,325 @@
+# TCS ECM Airflow DAG Crafter - Frontend Architecture Diagram
+
+## 📐 System Architecture Overview
+
+```mermaid
+graph TB
+    %% User Layer
+    User[👤 User] --> Browser{🌐 Browser}
+    
+    %% Frontend Application Layer
+    Browser --> React[⚛️ React Frontend Application]
+    
+    %% Main Application Components
+    React --> Router[🔀 React Router]
+    Router --> MainApp[📱 Main App Container]
+    
+    %% Core Pages & Components
+    MainApp --> Dashboard[📊 DAG Dashboard]
+    MainApp --> Reports[📈 Reports & Analytics]
+    MainApp --> Upload[📂 File Upload Studio]
+    MainApp --> Configure[⚙️ Workflow Configuration]
+    MainApp --> Generate[🛠️ Pipeline Builder]
+    MainApp --> XMLViewer[📄 XML Data Viewer]
+    
+    %% Global Components
+    React --> Sidebar[📋 Navigation Sidebar]
+    React --> Chatbot[🤖 AI Assistant (Buddy)]
+    React --> ThemeSelector[🎨 Theme Customization]
+    React --> StatusBar[📡 Connection Monitor]
+    
+    %% State Management & Context
+    React --> ThemeContext[🎨 Theme Context]
+    React --> QueryClient[📦 React Query Client]
+    React --> ToastContext[💬 Toast Notifications]
+    
+    %% API Layer & Hooks
+    React --> APIHooks[🔗 Custom Hooks]
+    APIHooks --> AirflowAPI[🔌 Airflow API Hook]
+    APIHooks --> ToastHook[💬 Toast Hook]
+    APIHooks --> MobileHook[📱 Mobile Hook]
+    
+    %% Backend Communication
+    AirflowAPI --> BackendAPI[🌐 Backend API Server]
+    BackendAPI --> APIRoutes[🛤️ Express Routes]
+    
+    %% API Endpoints
+    APIRoutes --> UploadAPI[📤 /api/upload-csv]
+    APIRoutes --> GenerateAPI[⚙️ /api/generate-dag]
+    APIRoutes --> SaveAPI[💾 /api/save-dag]
+    APIRoutes --> TestAPI[🧪 /api/test-dag]
+    APIRoutes --> ValidateAPI[✅ /api/validate-deployment]
+    APIRoutes --> ReportsAPI[📊 /api/reports]
+    APIRoutes --> ChatbotAPI[🤖 /api/chatbot/query]
+    APIRoutes --> CacheAPI[🗄️ /api/cache/clear]
+    
+    %% External Services
+    BackendAPI --> AirflowServer[🚀 Apache Airflow Server]
+    BackendAPI --> FileSystem[📁 Local File System]
+    BackendAPI --> Storage[💾 Local Storage/Database]
+    
+    %% Airflow Integration
+    AirflowServer --> AirflowWebUI[🌐 Airflow Web UI]
+    AirflowServer --> AirflowAPI2[🔗 Airflow REST API v2]
+    AirflowServer --> AirflowDAGs[📊 DAG Repository]
+    AirflowServer --> AirflowScheduler[⏰ Airflow Scheduler]
+    
+    %% File Management
+    FileSystem --> UploadsDir[📁 uploads/]
+    FileSystem --> DataDir[📁 data/]
+    FileSystem --> DAGsDir[📁 dags/]
+    FileSystem --> ReportsDir[📁 reports/]
+    
+    %% AI Services
+    ChatbotAPI --> OllamaLLM[🧠 Ollama Local LLM]
+    ChatbotAPI --> FallbackLLM[🤖 Fallback LLM Service]
+    ChatbotAPI --> RuleEngine[📋 Rule-based Responses]
+    
+    %% Styling & Theming
+    React --> TailwindCSS[🎨 Tailwind CSS]
+    React --> ShadcnUI[🎭 Shadcn/UI Components]
+    React --> LucideIcons[🎯 Lucide Icons]
+    
+    %% Build & Development
+    React --> Vite[⚡ Vite Build Tool]
+    React --> TypeScript[📘 TypeScript]
+    
+    %% Color coding for different layers
+    classDef userLayer fill:#e1f5fe
+    classDef frontendLayer fill:#f3e5f5
+    classDef apiLayer fill:#e8f5e8
+    classDef backendLayer fill:#fff3e0
+    classDef externalLayer fill:#fce4ec
+    classDef storageLayer fill:#f1f8e9
+    
+    class User,Browser userLayer
+    class React,Router,MainApp,Dashboard,Reports,Upload,Configure,Generate,XMLViewer,Sidebar,Chatbot,ThemeSelector,StatusBar frontendLayer
+    class APIHooks,AirflowAPI,BackendAPI,APIRoutes,UploadAPI,GenerateAPI,SaveAPI,TestAPI,ValidateAPI,ReportsAPI,ChatbotAPI,CacheAPI apiLayer
+    class AirflowServer,AirflowWebUI,AirflowAPI2,AirflowScheduler backendLayer
+    class OllamaLLM,FallbackLLM,RuleEngine externalLayer
+    class FileSystem,Storage,UploadsDir,DataDir,DAGsDir,ReportsDir,AirflowDAGs storageLayer
+```
+
+## 🔄 Data Flow Architecture
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant F as ⚛️ Frontend
+    participant A as 🔗 API Layer
+    participant B as 🌐 Backend
+    participant AF as 🚀 Airflow
+    participant FS as 📁 File System
+    participant AI as 🤖 AI Assistant
+    
+    %% File Upload Flow
+    Note over U,AI: 📤 File Upload & Processing Workflow
+    U->>F: Upload CSV File
+    F->>A: POST /api/upload-csv
+    A->>B: Process & Validate File
+    B->>FS: Save to uploads/
+    FS-->>B: File Saved
+    B-->>A: Upload Response
+    A-->>F: File Details
+    F-->>U: Preview Data
+    
+    %% DAG Generation Flow
+    Note over U,AI: ⚙️ DAG Generation & Deployment
+    U->>F: Configure DAG Settings
+    F->>A: POST /api/generate-dag
+    A->>B: Generate Script
+    B->>FS: Create DAG File
+    FS-->>B: File Created
+    B-->>A: Generated Script
+    A-->>F: DAG Code
+    F-->>U: Display Code Editor
+    
+    %% Airflow Integration
+    Note over U,AI: 🚀 Airflow Deployment & Monitoring
+    U->>F: Deploy to Airflow
+    F->>A: POST /api/save-dag
+    A->>B: Deploy DAG
+    B->>AF: Copy to DAGs Directory
+    AF-->>B: DAG Loaded
+    B->>AF: Test Connection
+    AF-->>B: Status Response
+    B-->>A: Deployment Status
+    A-->>F: Success/Error
+    F-->>U: Notification
+    
+    %% Real-time Monitoring
+    Note over U,AI: 📊 Real-time Dashboard Updates
+    F->>A: GET Airflow Status
+    A->>AF: Query DAG Stats
+    AF-->>A: DAG Information
+    A-->>F: Dashboard Data
+    F-->>U: Live Updates
+    
+    %% AI Assistant Interaction
+    Note over U,AI: 🤖 AI-Powered Assistance
+    U->>F: Ask Question
+    F->>A: POST /api/chatbot/query
+    A->>AI: Process Query
+    AI->>AI: Analyze Context
+    AI-->>A: Generated Response
+    A-->>F: Assistant Reply
+    F-->>U: AI Guidance
+    
+    %% Reports & Analytics
+    Note over U,AI: 📈 Business Intelligence
+    U->>F: View Reports
+    F->>A: GET /api/reports
+    A->>FS: Read Report Files
+    FS-->>A: Report Data
+    A-->>F: Analytics Data
+    F-->>U: Interactive Charts
+```
+
+## 🏗️ Component Architecture
+
+```mermaid
+graph LR
+    %% Main Application Structure
+    subgraph "🖥️ Frontend Application"
+        subgraph "📱 Core Pages"
+            Dashboard[📊 Dashboard]
+            Reports[📈 Reports]
+            Upload[📂 Upload]
+            Configure[⚙️ Configure]
+            Generate[🛠️ Generate]
+            XMLView[📄 XML Viewer]
+        end
+        
+        subgraph "🧩 Shared Components"
+            Sidebar[📋 Sidebar]
+            Header[📄 Header]
+            StatusBar[📡 Status]
+            ThemeUI[🎨 Theme UI]
+        end
+        
+        subgraph "🤖 AI Features"
+            Chatbot[💬 Chatbot]
+            Suggestions[💡 Suggestions]
+            Context[🧠 Context Analysis]
+        end
+    end
+    
+    subgraph "🔗 API Integration"
+        subgraph "📡 Communication Layer"
+            APIClient[🌐 API Client]
+            AirflowHook[🔌 Airflow Hook]
+            QueryCache[📦 Query Cache]
+        end
+        
+        subgraph "🛤️ Backend Routes"
+            FileAPI[📤 File APIs]
+            DAGAPI[⚙️ DAG APIs]
+            MonitorAPI[📊 Monitor APIs]
+            ChatAPI[🤖 Chat APIs]
+        end
+    end
+    
+    subgraph "🗄️ Data Layer"
+        subgraph "💾 Storage"
+            LocalFiles[📁 Local Files]
+            Cache[🗄️ Cache]
+            Reports2[📊 Reports Data]
+        end
+        
+        subgraph "🚀 Airflow"
+            WebUI[🌐 Web UI]
+            RESTAPI[🔗 REST API]
+            Scheduler[⏰ Scheduler]
+            DAGRepo[📊 DAG Repository]
+        end
+    end
+    
+    %% Connections
+    Dashboard --> APIClient
+    Reports --> APIClient
+    Upload --> APIClient
+    Configure --> APIClient
+    Generate --> APIClient
+    XMLView --> APIClient
+    
+    Chatbot --> ChatAPI
+    StatusBar --> MonitorAPI
+    
+    APIClient --> FileAPI
+    APIClient --> DAGAPI
+    APIClient --> MonitorAPI
+    
+    AirflowHook --> RESTAPI
+    FileAPI --> LocalFiles
+    DAGAPI --> DAGRepo
+    MonitorAPI --> WebUI
+    
+    %% Styling
+    classDef frontend fill:#e3f2fd
+    classDef api fill:#e8f5e8
+    classDef storage fill:#fff3e0
+    classDef airflow fill:#fce4ec
+    
+    class Dashboard,Reports,Upload,Configure,Generate,XMLView,Sidebar,Header,StatusBar,ThemeUI,Chatbot,Suggestions,Context frontend
+    class APIClient,AirflowHook,QueryCache,FileAPI,DAGAPI,MonitorAPI,ChatAPI api
+    class LocalFiles,Cache,Reports2 storage
+    class WebUI,RESTAPI,Scheduler,DAGRepo airflow
+```
+
+## 🔌 Technology Stack
+
+```mermaid
+mindmap
+  root((🏗️ TCS ECM<br/>Architecture))
+    🖥️ Frontend
+      ⚛️ React 18
+        🔀 Wouter Router
+        📦 React Query
+        🎨 Tailwind CSS
+        🎭 Shadcn/UI
+        🎯 Lucide Icons
+      📘 TypeScript
+      ⚡ Vite
+      🎨 Theme System
+        🌙 Dark/Light Mode
+        🎨 Custom Themes
+        💾 Local Storage
+    🌐 Backend
+      🟢 Node.js
+      📊 Express.js
+      📤 Multer Upload
+      🗄️ Simple Cache
+      📁 File System API
+      🔐 CORS Enabled
+    🚀 Airflow Integration
+      🔗 REST API v2
+      📊 DAG Management
+      ⏰ Scheduler
+      🌐 Web UI Access
+      📈 Monitoring
+    🤖 AI Features
+      🧠 Ollama Local LLM
+      🤖 Fallback Services
+      📋 Rule Engine
+      💬 Context Awareness
+      💡 Smart Suggestions
+    📊 Data & Storage
+      📁 Local File System
+        📤 uploads/
+        📊 dags/
+        📈 reports/
+        💾 data/
+      🗄️ In-Memory Cache
+      📋 JSON Configuration
+```
+
+This comprehensive architecture diagram shows:
+
+1. **User Interface Layer** - React-based frontend with multiple specialized pages
+2. **API Communication** - RESTful APIs connecting frontend to backend services
+3. **Backend Services** - Express.js server handling file processing, DAG generation, and Airflow integration
+4. **External Integrations** - Apache Airflow server and AI services
+5. **Data Flow** - Complete workflow from file upload to DAG deployment and monitoring
+6. **Technology Stack** - Modern web technologies with robust data processing capabilities
+
+The architecture demonstrates a well-structured separation of concerns with clear communication patterns and comprehensive functionality for enterprise workflow automation.

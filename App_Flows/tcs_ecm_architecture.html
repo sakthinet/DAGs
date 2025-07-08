@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCS ECM Frontend Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .architecture-container {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .layer {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .layer:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .layer-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .component {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .component:hover {
+            transform: translateX(5px);
+            border-left-color: #e74c3c;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .component-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .component-description {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .data-flow {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .data-flow h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .flow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .flow-step {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .flow-step:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .flow-step-number {
+            background: #3498db;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+
+        .tech-stack {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tech-category {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .tech-category h4 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tech-list li {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .connections {
+            position: relative;
+            height: 200px;
+            background: linear-gradient(135deg, #16a085 0%, #27ae60 100%);
+            border-radius: 15px;
+            margin: 30px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .components-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .flow-steps {
+                grid-template-columns: 1fr;
+            }
+            
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .interactive-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #3498db;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            font-size: 0.9em;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ TCS ECM Airflow DAG Crafter</h1>
+            <p>Frontend Architecture & Communication Patterns</p>
+        </div>
+
+        <div class="architecture-container">
+            <!-- Frontend Layer -->
+            <div class="layer">
+                <div class="layer-title">🖥️ Frontend Layer - React Application</div>
+                <div class="components-grid">
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">📊 DAG Dashboard</div>
+                        <div class="component-description">Real-time monitoring of Airflow DAGs with interactive charts and status updates</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">📂 File Upload Studio</div>
+                        <div class="component-description">Drag-and-drop CSV upload with validation and preview functionality</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">⚙️ Workflow Configuration</div>
+                        <div class="component-description">Interactive DAG builder with parameter customization</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">🛠️ Pipeline Builder</div>
+                        <div class="component-description">Visual DAG generation with code editor and preview</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">📈 Reports & Analytics</div>
+                        <div class="component-description">Business intelligence dashboard with interactive visualizations</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">🤖 AI Assistant (Buddy)</div>
+                        <div class="component-description">Intelligent chatbot for workflow guidance and troubleshooting</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Communication Layer -->
+            <div class="layer">
+                <div class="layer-title">🔗 API Communication Layer</div>
+                <div class="components-grid">
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">🌐 API Client</div>
+                        <div class="component-description">Centralized HTTP client with error handling and authentication</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">🔌 Airflow Integration Hook</div>
+                        <div class="component-description">Custom React hook for Airflow REST API v2 communication</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">📦 React Query Cache</div>
+                        <div class="component-description">Intelligent caching and synchronization for API responses</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">💬 Toast Notifications</div>
+                        <div class="component-description">Real-time user feedback for API operations</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backend Services -->
+            <div class="layer">
+                <div class="layer-title">🌐 Backend Services - Express.js Server</div>
+                <div class="components-grid">
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">📤 File Upload API</div>
+                        <div class="component-description">/api/upload-csv - Handles CSV file processing and validation</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">⚙️ DAG Generation API</div>
+                        <div class="component-description">/api/generate-dag - Creates Python DAG scripts from configurations</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">🚀 Airflow Deployment API</div>
+                        <div class="component-description">/api/save-dag - Deploys DAGs to Airflow server</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">🧪 Testing & Validation API</div>
+                        <div class="component-description">/api/test-dag - Validates DAG syntax and deployment</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">📊 Reports API</div>
+                        <div class="component-description">/api/reports - Generates analytics and performance reports</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">🤖 Chatbot API</div>
+                        <div class="component-description">/api/chatbot/query - AI-powered assistance with LLM integration</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- External Integrations -->
+            <div class="layer">
+                <div class="layer-title">🚀 External Integrations</div>
+                <div class="components-grid">
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">🚀 Apache Airflow Server</div>
+                        <div class="component-description">Core workflow orchestration with REST API v2 and Web UI</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">🧠 Ollama Local LLM</div>
+                        <div class="component-description">Local AI model for intelligent assistance and code generation</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">📁 File System</div>
+                        <div class="component-description">Organized storage for uploads, DAGs, reports, and data</div>
+                    </div>
+                    <div class="component" onclick="highlightComponent(this)">
+                        <div class="component-title">🗄️ Caching Layer</div>
+                        <div class="component-description">In-memory caching for improved performance</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Flow -->
+            <div class="data-flow">
+                <h3>📊 Data Flow: File Upload → DAG Deployment</h3>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="flow-step-number">1</div>
+                        <strong>File Upload</strong><br>
+                        User uploads CSV → Frontend validates → API processes
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">2</div>
+                        <strong>Configuration</strong><br>
+                        User configures DAG parameters → Frontend saves settings
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">3</div>
+                        <strong>Generation</strong><br>
+                        API generates Python DAG → Returns code to frontend
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">4</div>
+                        <strong>Deployment</strong><br>
+                        Frontend deploys to Airflow → Real-time monitoring begins
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technology Stack -->
+            <div class="tech-stack">
+                <h3>🛠️ Technology Stack</h3>
+                <div class="tech-grid">
+                    <div class="tech-category">
+                        <h4>Frontend</h4>
+                        <ul class="tech-list">
+                            <li>⚛️ React 18</li>
+                            <li>📘 TypeScript</li>
+                            <li>🔀 Wouter Router</li>
+                            <li>📦 React Query</li>
+                            <li>🎨 Tailwind CSS</li>
+                            <li>🎭 Shadcn/UI</li>
+                        </ul>
+                    </div>
+                    <div class="tech-category">
+                        <h4>Backend</h4>
+                        <ul class="tech-list">
+                            <li>🟢 Node.js</li>
+                            <li>📊 Express.js</li>
+                            <li>📤 Multer</li>
+                            <li>🔐 CORS</li>
+                            <li>📁 File System API</li>
+                        </ul>
+                    </div>
+                    <div class="tech-category">
+                        <h4>Integration</h4>
+                        <ul class="tech-list">
+                            <li>🚀 Apache Airflow</li>
+                            <li>🔗 REST API v2</li>
+                            <li>🧠 Ollama LLM</li>
+                            <li>📊 Monitoring</li>
+                            <li>⏰ Scheduler</li>
+                        </ul>
+                    </div>
+                    <div class="tech-category">
+                        <h4>Tools</h4>
+                        <ul class="tech-list">
+                            <li>⚡ Vite</li>
+                            <li>🎯 Lucide Icons</li>
+                            <li>🗄️ In-Memory Cache</li>
+                            <li>🌙 Theme System</li>
+                            <li>📱 Mobile Support</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Communication Patterns -->
+            <div class="connections">
+                <div>
+                    <div class="emoji">🔄</div>
+                    <strong>Real-time Communication:</strong> Frontend ↔ API ↔ Airflow ↔ Database
+                    <br><br>
+                    <div class="emoji">📡</div>
+                    <strong>Monitoring:</strong> Live status updates, error handling, and performance metrics
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="interactive-hint">
+        💡 Click on components to highlight them!
+    </div>
+
+    <script>
+        function highlightComponent(element) {
+            // Remove previous highlights
+            const allComponents = document.querySelectorAll('.component');
+            allComponents.forEach(comp => {
+                comp.style.background = 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)';
+                comp.style.borderLeft = '4px solid #3498db';
+            });
+            
+            // Highlight selected component
+            element.style.background = 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)';
+            element.style.borderLeft = '4px solid #e74c3c';
+            element.style.color = 'white';
+            
+            // Add temporary pulse effect
+            element.style.animation = 'pulse 1s ease-in-out';
+            
+            setTimeout(() => {
+                element.style.animation = '';
+            }, 1000);
+        }
+
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            const layers = document.querySelectorAll('.layer');
+            layers.forEach((layer, index) => {
+                layer.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>
